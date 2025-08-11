@@ -18,9 +18,17 @@ This is a minimal implementation of the RAG model for question answering tasks.
 
 3) Activate the environment:
 
-    ```sh
-    source .venv/Scripts/activate
-    ```
+    - On Windows:
+
+        ```sh
+        source .venv/Scripts/activate
+        ```
+
+    - On macOS/Linux:
+
+        ```sh
+        source .venv/bin/activate
+        ```
 
 4) Install the required packages and dependencies:
 
