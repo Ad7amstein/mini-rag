@@ -13,7 +13,7 @@ This is a minimal implementation of the RAG model for question answering tasks.
 2) Create a virtual environment (recommended) by running the following command in your terminal:
 
     ```sh
-    python -m venv .venv
+    python3 -m venv .venv
     ```
 
 3) Activate the environment:
