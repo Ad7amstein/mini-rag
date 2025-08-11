@@ -30,8 +30,18 @@ This is a minimal implementation of the RAG model for question answering tasks.
         source .venv/bin/activate
         ```
 
-4) Install the required packages and dependencies:
+## Installation
+
+1) Install the required packages and dependencies:
 
     ```sh
     pip install -r requirements.txt
     ```
+
+2) Setup the environment variables:
+
+    ```sh
+    cp .env.example .env
+    ```
+
+    > Set the required environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
