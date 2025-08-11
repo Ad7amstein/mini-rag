@@ -13,12 +13,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{api}}/welcome",
+					"raw": "{{api}}/api/v1",
 					"host": [
 						"{{api}}"
 					],
 					"path": [
-						"welcome"
+						"api",
+						"v1"
 					]
 				}
 			},
@@ -50,7 +51,7 @@
 	"variable": [
 		{
 			"key": "api",
-			"value": "http://127.0.0.1:5000",
+			"value": "http://0.0.0.0:5000",
 			"type": "string"
 		}
 	]
