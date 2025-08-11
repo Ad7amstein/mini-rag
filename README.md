@@ -45,3 +45,15 @@ This is a minimal implementation of the RAG model for question answering tasks.
     ```
 
     > Set the required environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
+
+## Usage
+
+### Run the FastAPI Server
+
+```sh
+sh scripts/run_app.sh
+```
+
+### Postman Collection (Optional)
+
+Download the Postman collection file from `assets/mini-rag.postman_collection.json`
