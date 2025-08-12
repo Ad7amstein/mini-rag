@@ -4,21 +4,22 @@ Utilities for loading and handling configuration files.
 
 import os
 from pathlib import Path
-from pydantic import Field
 from typing import List
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict, YamlConfigSettingsSource
 
 
 class Settings(BaseSettings):
     # .env
-    gh_pat: str = Field(..., alias="GH_PAT")
-    openai_api_key: str = Field(..., alias="OPENAI_API_KEY")
-    wsl_pass: str = Field(..., alias="WSL_PASS")
+    GH_PAT: str = Field(...)
+    OPENAI_API_KEY: str = Field(...)
+    WSL_PASS: str = Field(...)
     # .yaml
-    app_name: str = Field(..., alias="APP_NAME")
-    app_version: str = Field(..., alias="APP_VERSION")
-    file_allowed_types: List[str] = Field(..., alias="FILE_ALLOWED_TYPES")
-    file_max_size: int = Field(..., alias="FILE_MAX_SIZE")
+    APP_NAME: str = Field(...)
+    APP_VERSION: str = Field(...)
+    FILE_ALLOWED_TYPES: List[str] = Field(...)
+    FILE_MAX_SIZE: int = Field(...)
+    FILE_DEFAULT_CHUNK_SIZE: int = Field(...)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
@@ -55,9 +56,9 @@ def main():
 
     settings = get_settings()
 
-    print(settings.app_name)  # From config.yaml
-    print(settings.app_version)  # From config.yaml
-    print(settings.gh_pat)  # From .env
+    print(settings.APP_NAME)  # From config.yaml
+    print(settings.APP_VERSION)  # From config.yaml
+    print(settings.GH_PAT)  # From .env
 
 
 if __name__ == "__main__":
