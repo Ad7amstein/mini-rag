@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     app_version: str = Field(..., alias="APP_VERSION")
     gh_pat: str = Field(..., alias="GH_PAT")
     openai_api_key: str = Field(..., alias="OPENAI_API_KEY")
-    wsl_pass: str = Field(..., "WSL_PASS")
+    wsl_pass: str = Field(..., alias="WSL_PASS")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
