@@ -5,15 +5,20 @@ Utilities for loading and handling configuration files.
 import os
 from pathlib import Path
 from pydantic import Field
+from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict, YamlConfigSettingsSource
 
 
 class Settings(BaseSettings):
-    app_name: str = Field(..., alias="APP_NAME")
-    app_version: str = Field(..., alias="APP_VERSION")
+    # .env
     gh_pat: str = Field(..., alias="GH_PAT")
     openai_api_key: str = Field(..., alias="OPENAI_API_KEY")
     wsl_pass: str = Field(..., alias="WSL_PASS")
+    # .yaml
+    app_name: str = Field(..., alias="APP_NAME")
+    app_version: str = Field(..., alias="APP_VERSION")
+    file_allowed_types: List[str] = Field(..., alias="FILE_ALLOWED_TYPES")
+    file_max_size: int = Field(..., alias="FILE_MAX_SIZE")
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
