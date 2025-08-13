@@ -3,11 +3,13 @@ from enum import Enum
 
 
 class ResponseSignal(Enum):
-    FILE_VALIDATED_SUCCESS = "file validated successfully"
-    FILE_TYPE_NOT_SUPPORTED = "file type not supported"
-    FILE_SIZE_EXCEEDED = "file size exceeded"
-    FILE_UPLOAD_SUCCESS = "file upload success"
-    FILE_UPLOAD_FAILED = "file upload failed"
+    FILE_VALIDATED_SUCCESS = "file_validated_successfully"
+    FILE_TYPE_NOT_SUPPORTED = "file_type_not_supported"
+    FILE_SIZE_EXCEEDED = "file_size_exceeded"
+    FILE_UPLOAD_SUCCESS = "file_upload_success"
+    FILE_UPLOAD_FAILED = "file_upload_failed"
+    PROCESSING_FAILED = "processing_failed"
+    PROCESSING_SUCCESS = "processing_success"
 
 
 def main():
