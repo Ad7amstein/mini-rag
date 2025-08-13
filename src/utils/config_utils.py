@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     FILE_ALLOWED_TYPES: List[str] = Field(...)
     FILE_MAX_SIZE: int = Field(...)
     FILE_DEFAULT_CHUNK_SIZE: int = Field(...)
+    MONGODB_URL: str = Field(...)
+    MONGODB_DATABASE: str = Field(...)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
