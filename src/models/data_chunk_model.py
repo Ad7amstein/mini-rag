@@ -12,6 +12,22 @@ class DataChunkModel(BaseDataModel):
         super().__init__(db_client)
         self.collection = self.db_client[DataBaseEnum.COLLECTION_CHUNK_NAME.value]
 
+    @classmethod
+    async def create_instance(cls, db_client: AsyncIOMotorClient):
+        instance = cls(db_client)
+        await instance.init_collections()
+        return instance
+
+    async def init_collections(self):
+        all_collections = await self.db_client.list_collection_names() # type: ignore
+        if DataBaseEnum.COLLECTION_CHUNK_NAME.value not in all_collections:  # type: ignore
+            self.collection = self.db_client[DataBaseEnum.COLLECTION_CHUNK_NAME.value]
+            indexes = DataChunk.get_indexes()
+            for index in indexes:
+                await self.collection.create_index(
+                    index["key"], name=index["name"], unique=index["unique"]
+                )
+
     async def create_chunk(self, chunk: DataChunk):
         result = await self.collection.insert_one(
             chunk.model_dump(by_alias=True, exclude_unset=True)
