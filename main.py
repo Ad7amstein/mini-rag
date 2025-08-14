@@ -1,9 +1,9 @@
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from routes import base, data
 from utils import get_settings
-from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
