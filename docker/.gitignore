@@ -1,1 +1,3 @@
-mongodb
+mongodb_data
+.env
+commands.sh
