@@ -46,6 +46,22 @@ This is a minimal implementation of the RAG model for question answering tasks.
 
     > Set the required environment variables in the `.env` file. Like `OPENAI_API_KEY` value.
 
+## Run Docker Compose Services
+
+1) Copy the environment variables file
+
+    ```sh
+    cd docker
+    cp .env.example .env
+    ```
+
+2) Start the Docker containers
+
+    ```sh
+    cd docker
+    docker compose -f "docker-compose" up -d --build
+    ```
+
 ## Usage
 
 ### Run the FastAPI Server
