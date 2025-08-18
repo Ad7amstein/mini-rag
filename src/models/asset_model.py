@@ -3,7 +3,7 @@ from bson.objectid import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from models.base_data_model import BaseDataModel
 from models.db_schemas import Asset
-from models import DataBaseEnum
+from models import DataBaseEnum, AssetTypeEnum
 
 
 class AssetModel(BaseDataModel):
@@ -34,25 +34,31 @@ class AssetModel(BaseDataModel):
         asset.id = result.inserted_id
         return asset
 
-    async def get_or_create_asset(self, asset_id: str):
-        record = await self.collection.find_one({"project_id": asset_id})
-        if record is None:
-            asset = await self.create_asset(Asset(asset_id=asset_id))  # type: ignore
-        else:
-            asset = Asset(**record)
-
-        return asset
-
-    async def get_all_project_assets(self, asset_project_id: str):
-        return await self.collection.find(
+    async def get_asset_record(self, asset_project_id: str, asset_name: str):
+        record = await self.collection.find_one(
             {
                 "asset_project_id": (
                     ObjectId(asset_project_id)
                     if isinstance(asset_project_id, str)
                     else asset_project_id
-                )
+                ),
+                "asset_name": asset_name,
+            }
+        )
+        return Asset(**record) if record is not None else None
+
+    async def get_all_project_assets(self, asset_project_id: str, asset_type: str):
+        records = await self.collection.find(
+            {
+                "asset_project_id": (
+                    ObjectId(asset_project_id)
+                    if isinstance(asset_project_id, str)
+                    else asset_project_id
+                ),
+                "asset_type": asset_type,
             }
         ).to_list(length=None)
+        return [Asset(**record) for record in records]
 
 
 def main():
