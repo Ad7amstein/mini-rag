@@ -13,7 +13,12 @@ class Settings(BaseSettings):
     # .env
     GH_PAT: str = Field(...)
     OPENAI_API_KEY: str = Field(...)
+    OPENAI_BASE_URL: str
+    COHERE_API_KEY: str
     WSL_PASS: str = Field(...)
+    MONGODB_URL: str
+    MONGODB_DATABASE: str
+
     # .yaml
     APP_NAME: str = Field(...)
     APP_VERSION: str = Field(...)
@@ -22,6 +27,17 @@ class Settings(BaseSettings):
     FILE_DEFAULT_CHUNK_SIZE: int = Field(...)
     MONGODB_URL: str = Field(...)
     MONGODB_DATABASE: str = Field(...)
+
+    GENERATION_BACKEND: str
+    EMBEDDING_BACKEND: str
+
+    GENERATION_MODEL_ID: str
+    EMBEDDING_MODEL_ID: str
+    EMBEDDING_MODEL_SIZE: int
+
+    DEFAULT_INPUT_MAX_TOKENS: int
+    DEFAULT_GENERATION_MAX_TOKENS: int
+    DEFAULT_GENERATION_TEMERATURE: float
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
