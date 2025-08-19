@@ -1,9 +1,9 @@
 import os
 from typing import Optional
+import logging
 from openai import OpenAI
 from stores.llm.llm_interface import LLMInterface
-from stores.llm.llm_enum import OpenAIEnum
-import logging
+from stores.llm.llm_enum import OpenAIEnums
 
 
 class OpenAIProvider(LLMInterface):
@@ -61,7 +61,7 @@ class OpenAIProvider(LLMInterface):
         )
 
         chat_history.append(
-            self.contstruct_prompt(prompt=prompt, role=OpenAIEnum.USER.value)
+            self.contstruct_prompt(prompt=prompt, role=OpenAIEnums.USER.value)
         )
 
         response = self.client.chat.completions.create(
