@@ -7,6 +7,7 @@ from routes import base, data, nlp
 from utils import get_settings
 from stores.llm import LLMProviderFactory
 from stores.vectordb import VectorDBProviderFactory
+from stores.llm.templates.template_parser import TemplateParser
 
 logger = logging.getLogger("uvicorn")
 
@@ -46,6 +47,8 @@ async def lifespan(app: FastAPI):
         app.state.settings.VECTOR_DB_BACKEND
     )
     app.state.vectordb_client.connect()  # type: ignore
+
+    app.state.template_parser = TemplateParser(language=app.state.settings.PRIMARY_LANGUAGE)
 
     yield  # The application runs here
 
