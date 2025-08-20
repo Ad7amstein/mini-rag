@@ -26,6 +26,11 @@ class DataChunk(BaseModel):
         ]
 
 
+class RetrievedDocument(BaseModel):
+    text: str
+    score: float
+
+
 def main():
     """Entry Point for the Program."""
     print(
