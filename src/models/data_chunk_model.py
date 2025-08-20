@@ -19,7 +19,7 @@ class DataChunkModel(BaseDataModel):
         return instance
 
     async def init_collections(self):
-        all_collections = await self.db_client.list_collection_names() # type: ignore
+        all_collections = await self.db_client.list_collection_names()  # type: ignore
         if DataBaseEnum.COLLECTION_CHUNK_NAME.value not in all_collections:  # type: ignore
             self.collection = self.db_client[DataBaseEnum.COLLECTION_CHUNK_NAME.value]
             indexes = DataChunk.get_indexes()
@@ -58,6 +58,14 @@ class DataChunkModel(BaseDataModel):
         result = await self.collection.delete_many({"chunk_project_id": project_id})
 
         return result.deleted_count
+
+    async def get_project_chunks(
+        self, project_id: ObjectId, page_number: int = 1, page_size: int = 50
+    ) -> list:
+        cursor = self.collection.find({"chunk_project_id": project_id})
+        cursor = cursor.skip((page_number - 1) * page_size).limit(page_size)
+        results = await cursor.to_list(length=None)
+        return [DataChunk(**record) for record in results]
 
 
 def main():
