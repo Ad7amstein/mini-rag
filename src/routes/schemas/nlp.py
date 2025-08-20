@@ -11,6 +11,10 @@ class SearchRequest(BaseModel):
     text: str
     limit: Optional[int] = 5
 
+class AnswerRequest(BaseModel):
+    text: str
+    limit: Optional[int] = 5
+
 
 def main():
     """Entry Point for the Program."""
