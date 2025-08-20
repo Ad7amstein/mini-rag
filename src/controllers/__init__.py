@@ -1,3 +1,4 @@
 from controllers.data_controller import DataController
 from controllers.project_controller import ProjectController
 from controllers.process_controller import ProcessController
+from controllers.nlp_controller import NLPController
