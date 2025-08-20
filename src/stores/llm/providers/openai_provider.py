@@ -25,6 +25,7 @@ class OpenAIProvider(LLMInterface):
         self.embedding_model_id = None
         self.embedding_size = None
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+        self.enums = OpenAIEnums
         self.logger = logging.getLogger(__class__.__name__)
 
     def set_generation_model(self, model_id: str):
@@ -61,7 +62,7 @@ class OpenAIProvider(LLMInterface):
         )
 
         chat_history.append(
-            self.contstruct_prompt(prompt=prompt, role=OpenAIEnums.USER.value)
+            self.construct_prompt(prompt=prompt, role=OpenAIEnums.USER.value)
         )
 
         response = self.client.chat.completions.create(
@@ -82,7 +83,7 @@ class OpenAIProvider(LLMInterface):
 
         return response.choices[0].message.content
 
-    def contstruct_prompt(self, prompt: str, role: str):
+    def construct_prompt(self, prompt: str, role: str):
         return {"role": role, "content": self.process_text(prompt)}
 
     def embed_text(self, text: str, document_type: Optional[str] = None):

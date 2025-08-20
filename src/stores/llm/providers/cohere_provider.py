@@ -23,6 +23,7 @@ class CoHereProvider(LLMInterface):
         self.embedding_model_id = None
         self.embedding_size = None
         self.client = cohere.Client(api_key=self.api_key)
+        self.enums = CoHereEnums
         self.logger = logging.getLogger(__class__.__name__)
 
     def set_generation_model(self, model_id: str):
@@ -99,7 +100,7 @@ class CoHereProvider(LLMInterface):
 
         return response.embeddings.float[0]  # type: ignore
 
-    def contstruct_prompt(self, prompt: str, role: str):
+    def construct_prompt(self, prompt: str, role: str):
         return {"role": role, "text": self.process_text(prompt)}
 
 
