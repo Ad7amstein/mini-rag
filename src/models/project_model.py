@@ -17,7 +17,7 @@ class ProjectModel(BaseDataModel):
         return instance
 
     async def init_collections(self):
-        all_collections = await self.db_client.list_collection_names() # type: ignore
+        all_collections = await self.db_client.list_collection_names()  # type: ignore
         if DataBaseEnum.COLLECTION_PROJECT_NAME.value not in all_collections:  # type: ignore
             self.collection = self.db_client[DataBaseEnum.COLLECTION_PROJECT_NAME.value]
             indexes = Project.get_indexes()
@@ -26,14 +26,14 @@ class ProjectModel(BaseDataModel):
                     index["key"], name=index["name"], unique=index["unique"]
                 )
 
-    async def create_project(self, project: Project):
+    async def create_project(self, project: Project) -> Project:
         result = await self.collection.insert_one(
             project.model_dump(by_alias=True, exclude_unset=True)
         )
         project.id = result.inserted_id
         return project
 
-    async def get_or_create_project(self, project_id: str):
+    async def get_or_create_project(self, project_id: str) -> Project:
         record = await self.collection.find_one({"project_id": project_id})
         if record is None:
             project = await self.create_project(Project(project_id=project_id))  # type: ignore
