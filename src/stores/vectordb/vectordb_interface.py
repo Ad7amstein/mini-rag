@@ -40,8 +40,8 @@ class VectorDBInterface(ABC):
         collection_name: str,
         text: str,
         vector: list,
-        metadata: Optional[dict] = None,
-        record_id: Optional[str] = None,
+        record_id: int,
+        metadata: dict | None = None,
     ):
         pass
 
