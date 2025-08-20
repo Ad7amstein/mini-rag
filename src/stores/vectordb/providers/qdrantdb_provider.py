@@ -19,7 +19,7 @@ class QDrantDBProvider(VectorDBInterface):
         self.logger = logging.getLogger(__class__.__name__)
 
     def connect(self):
-        self.client = QdrantClient(self.db_path)
+        self.client = QdrantClient(path=self.db_path)
 
     def disconnect(self):
         self.client = None
@@ -38,9 +38,9 @@ class QDrantDBProvider(VectorDBInterface):
             return self.client.delete_collection(collection_name=collection_name)  # type: ignore
 
     def create_collection(
-        self, collection_name: str, embedding_size: int, do_resent: bool = False
+        self, collection_name: str, embedding_size: int, do_reset: bool = False
     ):
-        if do_resent:
+        if do_reset:
             _ = self.delete_collection(collection_name=collection_name)
 
         if not self.is_collection_existed(collection_name=collection_name):
@@ -58,8 +58,8 @@ class QDrantDBProvider(VectorDBInterface):
         collection_name: str,
         text: str,
         vector: list,
+        record_id: int,
         metadata: dict | None = None,
-        record_id: str | None = None,
     ):
         if not self.is_collection_existed(collection_name=collection_name):
             self.logger.error(
@@ -73,7 +73,9 @@ class QDrantDBProvider(VectorDBInterface):
                 collection_name=collection_name,
                 records=[
                     models.Record(  # type: ignore
-                        vector=vector, payload={"text": text, "metadata": metadata}
+                        id=[record_id],  # type: ignore
+                        vector=vector,
+                        payload={"text": text, "metadata": metadata},
                     )
                 ],
             )
@@ -87,22 +89,24 @@ class QDrantDBProvider(VectorDBInterface):
         collection_name: str,
         texts: models.List[str],
         vectors: models.List[list],
+        record_ids: models.List[int],
         metadatas: models.List[dict] | None = None,
-        record_ids: models.List[str] | None = None,
         batch_size: int = 50,
     ):
         if metadatas is None:
             metadatas = [None] * len(texts)  # type: ignore
         if record_ids is None:
-            record_ids = [None] * len(texts)  # type: ignore
+            record_ids = list(range(0, len(texts)))
 
         for i in range(0, len(texts), batch_size):
             batch_end = i + batch_size
             batch_text = texts[i:batch_end]
             batch_vector = vectors[i:batch_end]
+            batch_record_ids = record_ids[i:batch_end]
             batch_metadata = metadatas[i:batch_end]  # type: ignore
             batch_records = [
-                models.Record(  # type: ignore
+                models.Record(
+                    id=batch_record_ids[i],
                     vector=batch_vector[i],
                     payload={"text": batch_text[i], "metadata": batch_metadata[i]},
                 )
