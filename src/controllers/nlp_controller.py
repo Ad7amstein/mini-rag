@@ -1,5 +1,5 @@
 import os
-from typing import List, Optional
+from typing import List
 import json
 from controllers.base_controller import BaseController
 from models.db_schemas import Project, DataChunk
@@ -87,10 +87,10 @@ class NLPController(BaseController):
         if not retrieved_documents or len(retrieved_documents) == 0:
             return answer, full_prompt, chat_history
 
-        system_prompt = self.template_parser.get("rag", "SYSTEM_PROMPT")  # type: ignore
-        document_prompts = "\n".join(  # type: ignore
+        system_prompt = self.template_parser.get("rag", "SYSTEM_PROMPT")
+        document_prompts = "\n".join(
             [  # type: ignore
-                self.template_parser.get(  # type: ignore
+                self.template_parser.get(
                     "rag",
                     "DOCUMENT_PROMPT",
                     vars_={"doc_num": idx + 1, "chunk_text": document.text},
@@ -99,7 +99,9 @@ class NLPController(BaseController):
             ]
         )
 
-        footer_prompt = self.template_parser.get("rag", "FOOTER_PROMPT")  # type: ignore
+        footer_prompt = self.template_parser.get(
+            "rag", "FOOTER_PROMPT", {"query": query}
+        )
         chat_history = [
             self.generation_client.construct_prompt(
                 prompt=system_prompt, role=self.generation_client.enums.SYSTEM.value
