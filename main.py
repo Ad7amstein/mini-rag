@@ -1,8 +1,9 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from motor.motor_asyncio import AsyncIOMotorClient
 import logging
+from fastapi import FastAPI
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker
 from routes import base, data, nlp
 from utils import get_settings
 from stores.llm import LLMProviderFactory
@@ -13,13 +14,17 @@ logger = logging.getLogger("uvicorn")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI):  # pylint: disable=[W0621]
     # Startup
     settings = get_settings()
     app.state.settings = settings
-    app.state.mongo_conn = AsyncIOMotorClient(settings.MONGODB_URL)
-    app.state.db_client = app.state.mongo_conn[settings.MONGODB_DATABASE]
-    logger.info("MongoDB connection established.")
+
+    postgres_conn_url = f"postgresql+asyncpg://{settings.POSTGRES_USERNAME}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_MAIN_DATABASE}"
+    app.state.db_engine = create_async_engine(postgres_conn_url)
+    app.state.db_client = sessionmaker(
+        app.state.db_engine, class_=AsyncSession, expire_on_commit=False  # type: ignore
+    )
+    logger.info("Postgresql connection established.")
 
     llm_provider_factory = LLMProviderFactory(app.state.settings)
     vectordb_provider_factory = VectorDBProviderFactory(app.state.settings)
@@ -48,14 +53,16 @@ async def lifespan(app: FastAPI):
     )
     app.state.vectordb_client.connect()  # type: ignore
 
-    app.state.template_parser = TemplateParser(language=app.state.settings.PRIMARY_LANGUAGE)
+    app.state.template_parser = TemplateParser(
+        language=app.state.settings.PRIMARY_LANGUAGE
+    )
 
     yield  # The application runs here
 
     # Shutdown
-    app.state.mongo_conn.close()
+    await app.state.db_engine.dispose()
     app.state.vectordb_client.disconnect()  # type: ignore
-    logger.info("MongoDB connection closed.")
+    logger.info("Postgresql connection closed.")
 
 
 app = FastAPI(lifespan=lifespan)
