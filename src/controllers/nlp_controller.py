@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Sequence, cast
 import json
 from controllers.base_controller import BaseController
 from models.db_schemas import Project, DataChunk
@@ -21,15 +21,19 @@ class NLPController(BaseController):
         self.embedding_client = embedding_client
         self.template_parser = template_parser
 
-    def create_collection_name(self, project_id: str):
-        return f"collection_{project_id}".strip()
+    def create_collection_name(self, project_id: int):
+        return f"collection_{str(project_id)}".strip()
 
     def reset_vectordb_collection(self, project: Project):
-        collection_name = self.create_collection_name(project_id=project.project_id)
+        collection_name = self.create_collection_name(
+            project_id=cast(int, project.project_id)
+        )
         self.vectordb_client.delete_collection(collection_name=collection_name)
 
     def get_vectordb_collection_info(self, project: Project):
-        collection_name = self.create_collection_name(project_id=project.project_id)
+        collection_name = self.create_collection_name(
+            project_id=cast(int, project.project_id)
+        )
         collection_info = self.vectordb_client.get_collection_info(
             collection_name=collection_name
         )
@@ -39,12 +43,14 @@ class NLPController(BaseController):
     def index_into_vectordb(
         self,
         project: Project,
-        chunks: List[DataChunk],
+        chunks: Sequence[DataChunk],
         chunk_ids: List[int],
         do_reset: bool = False,
     ):
-        collection_name = self.create_collection_name(project_id=project.project_id)
-        texts = [chunk.chuk_text for chunk in chunks]
+        collection_name = self.create_collection_name(
+            project_id=cast(int, project.project_id)
+        )
+        texts = [chunk.chunk_text for chunk in chunks]
         metadatas = [chunk.chunk_metadata for chunk in chunks]
         vectors = [
             self.embedding_client.embed_text(text, DocumentTypeEnum.DOCUMENT.value)
@@ -66,7 +72,9 @@ class NLPController(BaseController):
         return True
 
     def search_vectordb_collection(self, project: Project, text: str, limit: int = 10):
-        collection_name = self.create_collection_name(project_id=project.project_id)
+        collection_name = self.create_collection_name(
+            project_id=cast(int, project.project_id)
+        )
         vector = self.embedding_client.embed_text(text, DocumentTypeEnum.QUERY.value)
         if not vector or len(vector) == 0:
             return None
@@ -93,7 +101,12 @@ class NLPController(BaseController):
                 self.template_parser.get(
                     "rag",
                     "DOCUMENT_PROMPT",
-                    vars_={"doc_num": idx + 1, "chunk_text": document.text},
+                    vars_={
+                        "doc_num": idx + 1,
+                        "chunk_text": self.generation_client.process_text(
+                            document.text
+                        ),
+                    },
                 )
                 for idx, document in enumerate(retrieved_documents)
             ]
