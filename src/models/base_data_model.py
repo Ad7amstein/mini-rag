@@ -1,10 +1,13 @@
 import os
-from motor.motor_asyncio import AsyncIOMotorClient
+from typing import Callable
+from sqlalchemy.ext.asyncio import AsyncSession
 from utils import get_settings
+
+SessionMaker = Callable[[], AsyncSession]
 
 
 class BaseDataModel:
-    def __init__(self, db_client: AsyncIOMotorClient) -> None:
+    def __init__(self, db_client: SessionMaker) -> None:
         self.db_client = db_client
         self.app_settings = get_settings()
 
