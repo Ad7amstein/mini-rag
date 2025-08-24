@@ -1,10 +1,11 @@
 import os
+from typing import cast
 import logging
 from fastapi import APIRouter, status, Request
 from fastapi.responses import JSONResponse
 from routes.schemas import PushRequest, SearchRequest, AnswerRequest
-from models import ProjectModel, DataChunkModel
 from controllers import NLPController
+from models import ProjectModel, DataChunkModel
 from models import ResponseSignalEnum
 
 logger = logging.getLogger("uvicorn.error")
@@ -13,7 +14,7 @@ nlp_router = APIRouter(prefix="/api/v1/nlp", tags=["api_v1", "nlp"])
 
 
 @nlp_router.post("/index/push/{project_id}")
-async def index_project(request: Request, project_id: str, push_request: PushRequest):
+async def index_project(request: Request, project_id: int, push_request: PushRequest):
     project_model = await ProjectModel.create_instance(
         db_client=request.app.state.db_client
     )
@@ -40,12 +41,12 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
     inserted_items_count = 0
     idx = 0
     while has_records:
-        page_chunks = await chunk_model.get_project_chunks(
-            project_id=project.id, page_number=page_number  # type: ignore
+        page_chunks, total_pages = await chunk_model.get_project_chunks(
+            project_id=cast(int, project.project_id), page_number=page_number
         )
-        if len(page_chunks) > 0:  # type: ignore
+        if len(page_chunks) > 0:
             page_number += 1
-        if not page_chunks or len(page_chunks) == 0:  # type: ignore
+        if not page_chunks or len(page_chunks) == 0:
             has_records = False
             break
 
@@ -69,12 +70,13 @@ async def index_project(request: Request, project_id: str, push_request: PushReq
         content={
             "signal": ResponseSignalEnum.INSERT_INTO_VECTORDB_SUCCESS.value,
             "inserted_items_count": inserted_items_count,
+            "total_pages": total_pages,
         }
     )
 
 
 @nlp_router.get("/index/info/{project_id}")
-async def get_project_index_info(request: Request, project_id: str):
+async def get_project_index_info(request: Request, project_id: int):
     project_model = await ProjectModel.create_instance(
         db_client=request.app.state.db_client
     )
@@ -103,7 +105,7 @@ async def get_project_index_info(request: Request, project_id: str):
 
 @nlp_router.post("/index/search/{project_id}")
 async def search_index(
-    request: Request, project_id: str, search_request: SearchRequest
+    request: Request, project_id: int, search_request: SearchRequest
 ):
     project_model = await ProjectModel.create_instance(
         db_client=request.app.state.db_client
@@ -140,7 +142,7 @@ async def search_index(
 
 
 @nlp_router.post("/index/answer/{project_id}")
-async def answer_rag(request: Request, project_id: str, answer_request: AnswerRequest):
+async def answer_rag(request: Request, project_id: int, answer_request: AnswerRequest):
     project_model = await ProjectModel.create_instance(
         db_client=request.app.state.db_client
     )
