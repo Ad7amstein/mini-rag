@@ -5,18 +5,28 @@ This is a minimal implementation of the RAG model for question answering tasks.
 ## Requirements
 
 - Python 3.8+
+- libpq-dev
+- gcc
+- python3-dev
 
 ### Install python and other dependencies
 
 1) Download the Python installer from the [official website](https://www.python.org/downloads/)
 
-2) Create a virtual environment (recommended) by running the following command in your terminal:
+2) Install the required packages (Linux - Ubuntu):
+
+    ```sh
+    sudo apt update
+    sudo apt install libpq-dev gcc python3-dev
+    ```
+
+3) Create a virtual environment (recommended) by running the following command in your terminal:
 
     ```sh
     python3 -m venv .venv
     ```
 
-3) Activate the environment:
+4) Activate the environment:
 
     - On Windows:
 
