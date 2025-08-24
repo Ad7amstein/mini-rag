@@ -16,8 +16,15 @@ class Settings(BaseSettings):
     OPENAI_BASE_URL: str
     COHERE_API_KEY: str
     WSL_PASS: str = Field(...)
-    MONGODB_URL: str
-    MONGODB_DATABASE: str
+
+    # MONGODB_URL: str
+    # MONGODB_DATABASE: str
+
+    POSTGRES_USERNAME: str = Field(...)
+    POSTGRES_PASSWORD: str = Field(...)
+    POSTGRES_HOST: str = Field(...)
+    POSTGRES_PORT: int = Field(...)
+    POSTGRES_MAIN_DATABASE: str = Field(...)
 
     # .yaml
     APP_NAME: str = Field(...)
