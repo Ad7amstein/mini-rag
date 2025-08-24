@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini-rag"
+version = "1.0.0"
+description = "This is a minimal implementation of the RAG model for question answering tasks."
+authors = [
+    { name = "3llam", email = "adham.3llam@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache License 2.0" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache License 2.0",
+    "Operating System :: OS Independent",
+]
+
+# Dependencies (currently none, uncomment and add if needed)
+# dependencies = [
+#     "numpy>=1.22",
+#     "torch>=2.0"
+# ]
+
+[project.urls]
+Homepage = "https://github.com/Ad7amstein/mini-rag"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[project.scripts]
+# example = "mini_rag.cli:main"
