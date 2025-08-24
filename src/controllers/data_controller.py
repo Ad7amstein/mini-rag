@@ -24,7 +24,7 @@ class DataController(BaseController):
         cleaned_file_name = cleaned_file_name.replace(" ", "_")
         return cleaned_file_name
 
-    def generate_unique_filepath(self, original_file_name: str, project_id: str):
+    def generate_unique_filepath(self, original_file_name: str, project_id: int):
         project_dir = ProjectController().get_project_path(project_id)
         cleaned_file_name = self.clean_file_name(original_file_name)
 
