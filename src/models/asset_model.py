@@ -1,64 +1,56 @@
 import os
-from bson.objectid import ObjectId
-from motor.motor_asyncio import AsyncIOMotorClient
+from typing import Callable, Sequence
+from sqlalchemy.future import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from models.base_data_model import BaseDataModel
 from models.db_schemas import Asset
-from models import DataBaseEnum, AssetTypeEnum
+
+SessionMaker = Callable[[], AsyncSession]
 
 
 class AssetModel(BaseDataModel):
-    def __init__(self, db_client: AsyncIOMotorClient) -> None:
+    def __init__(self, db_client: SessionMaker) -> None:
         super().__init__(db_client)
-        self.collection = self.db_client[DataBaseEnum.COLLECTION_ASSET_NAME.value]
+        self.db_client = self.db_client
 
     @classmethod
-    async def create_instance(cls, db_client: AsyncIOMotorClient):
+    async def create_instance(cls, db_client: SessionMaker):
         instance = cls(db_client)
-        await instance.init_collections()
         return instance
 
-    async def init_collections(self):
-        all_collections = await self.db_client.list_collection_names()  # type: ignore
-        if DataBaseEnum.COLLECTION_ASSET_NAME.value not in all_collections:  # type: ignore
-            self.collection = self.db_client[DataBaseEnum.COLLECTION_ASSET_NAME.value]
-            indexes = Asset.get_indexes()
-            for index in indexes:
-                await self.collection.create_index(
-                    index["key"], name=index["name"], unique=index["unique"]
-                )
+    async def create_asset(self, asset: Asset) -> Asset:
+        async with self.db_client() as session:
+            async with session.begin():
+                session.add(asset)
+            await session.commit()
+            await session.refresh(asset)
+            return asset
 
-    async def create_asset(self, asset: Asset):
-        result = await self.collection.insert_one(
-            asset.model_dump(by_alias=True, exclude_unset=True)
-        )
-        asset.id = result.inserted_id
+    async def get_asset_record(
+        self, asset_project_id: int, asset_name: str
+    ) -> Asset | None:
+        async with self.db_client() as session:
+            async with session.begin():
+                query = select(Asset).where(
+                    Asset.asset_project_id == asset_project_id,
+                    Asset.asset_name == asset_name,
+                )
+                result = await session.execute(query)
+                asset = result.scalar_one_or_none()
+
         return asset
 
-    async def get_asset_record(self, asset_project_id: str, asset_name: str):
-        record = await self.collection.find_one(
-            {
-                "asset_project_id": (
-                    ObjectId(asset_project_id)
-                    if isinstance(asset_project_id, str)
-                    else asset_project_id
-                ),
-                "asset_name": asset_name,
-            }
-        )
-        return Asset(**record) if record is not None else None
-
-    async def get_all_project_assets(self, asset_project_id: str, asset_type: str):
-        records = await self.collection.find(
-            {
-                "asset_project_id": (
-                    ObjectId(asset_project_id)
-                    if isinstance(asset_project_id, str)
-                    else asset_project_id
-                ),
-                "asset_type": asset_type,
-            }
-        ).to_list(length=None)
-        return [Asset(**record) for record in records]
+    async def get_all_project_assets(
+        self, asset_project_id: int, asset_type: str
+    ) -> Sequence[Asset]:
+        async with self.db_client() as session:
+            query = select(Asset).where(
+                Asset.asset_project_id == asset_project_id,
+                Asset.asset_type == asset_type,
+            )
+            result = await session.execute(query)
+            assets = result.scalars().all()
+        return assets
 
 
 def main():
