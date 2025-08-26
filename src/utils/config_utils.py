@@ -4,7 +4,7 @@ Utilities for loading and handling configuration files.
 
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict, YamlConfigSettingsSource
 
@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     FILE_MAX_SIZE: int = Field(...)
     FILE_DEFAULT_CHUNK_SIZE: int = Field(...)
 
+    GENERATION_MODEL_ID_LITERAL: Optional[List[str]] = Field(None)
     GENERATION_BACKEND: str
     EMBEDDING_BACKEND: str
 
@@ -44,9 +45,11 @@ class Settings(BaseSettings):
     DEFAULT_GENERATION_MAX_TOKENS: int
     DEFAULT_GENERATION_TEMERATURE: float
 
+    VECTOR_DB_BACKEND_LITERAL: Optional[List[str]] = Field(None)
     VECTOR_DB_BACKEND: str
     VECTOR_DB_PATH: str
     VECTOR_DB_DISTANCE_METHOD: str
+
     DEFAULT_LANG: str
     PRIMARY_LANGUAGE: str
 
