@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 import logging
 import cohere
 from stores.llm.llm_interface import LLMInterface
@@ -72,7 +72,7 @@ class CoHereProvider(LLMInterface):
 
         return response.text
 
-    def embed_text(self, text: str, document_type: Optional[str] = None):
+    def embed_text(self, text: str | List[str], document_type: Optional[str] = None) -> list | None:
         if not self.client:
             self.logger.error("CoHere client was not set")
             return None
@@ -80,6 +80,9 @@ class CoHereProvider(LLMInterface):
         if not self.client:
             self.logger.error("Embedding Model for CoHere was not set")
             return None
+
+        if isinstance(text, str):
+            text = [text]
 
         input_type = (
             CoHereEnums.DOCUMENT.value
@@ -89,7 +92,7 @@ class CoHereProvider(LLMInterface):
 
         response = self.client.embed(
             model=self.embedding_model_id,
-            texts=[self.process_text(text)],
+            texts=[self.process_text(el) for el in text],
             input_type=input_type,
             embedding_types=["float"],
         )
@@ -98,7 +101,7 @@ class CoHereProvider(LLMInterface):
             self.logger.error("Error while embedding text using CoHere")
             return None
 
-        return response.embeddings.float[0]  # type: ignore
+        return response.embeddings.float # type: ignore
 
     def construct_prompt(self, prompt: str, role: str):
         return {"role": role, "text": prompt}

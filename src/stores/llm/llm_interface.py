@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, List
 
 
 class LLMInterface(ABC):
@@ -24,7 +24,7 @@ class LLMInterface(ABC):
         pass
 
     @abstractmethod
-    def embed_text(self, text: str, document_type: Optional[str] = None):
+    def embed_text(self, text: str | List[str], document_type: Optional[str] = None) -> list | None:
         pass
 
     @abstractmethod

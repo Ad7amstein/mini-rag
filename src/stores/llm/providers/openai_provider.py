@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, List
 import logging
 from openai import OpenAI
 from stores.llm.llm_interface import LLMInterface
@@ -86,7 +86,7 @@ class OpenAIProvider(LLMInterface):
     def construct_prompt(self, prompt: str, role: str):
         return {"role": role, "content": prompt}
 
-    def embed_text(self, text: str, document_type: Optional[str] = None):
+    def embed_text(self, text: str | List[str], document_type: Optional[str] = None) -> list | None:
         if not self.client:
             self.logger.error("OpenAI client was not set")
             return None
@@ -94,6 +94,9 @@ class OpenAIProvider(LLMInterface):
         if not self.client:
             self.logger.error("Embedding Model for OpenAI was not set")
             return None
+
+        if isinstance(text, str):
+            text = [text]
 
         response = self.client.embeddings.create(
             model=self.embedding_model_id, input=text  # type: ignore
@@ -107,7 +110,7 @@ class OpenAIProvider(LLMInterface):
         ):
             self.logger.error("Error while embedding text with OpenAI")
             return None
-        return response.data[0].embedding
+        return [el.embedding for el in response.data]
 
 
 def main():
