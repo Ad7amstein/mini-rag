@@ -1,9 +1,10 @@
 import os
+from typing import cast
 import logging
 import aiofiles
 from fastapi import APIRouter, UploadFile, status, Depends, Request
 from fastapi.responses import JSONResponse
-from controllers import DataController, ProcessController
+from controllers import DataController, ProcessController, NLPController
 from utils.config_utils import get_settings, Settings
 from models import (
     ResponseSignalEnum,
@@ -94,6 +95,13 @@ async def process_data(
     project = await project_model.get_or_create_project(project_id=project_id)
 
     process_controller = ProcessController(project_id)
+    nlp_controller = NLPController(
+        vectordb_client=request.app.state.vectordb_client,
+        generation_client=request.app.state.generation_client,
+        embedding_client=request.app.state.embedding_client,
+        template_parser=request.app.state.template_parser,
+    )
+
     project_files_ids = {}
     if process_request.file_id is not None:
         asset = await asset_model.get_asset_record(
@@ -110,7 +118,9 @@ async def process_data(
         project_files = await asset_model.get_all_project_assets(
             project.project_id, asset_type=AssetTypeEnum.FILE.value  # type: ignore
         )
-        project_files_ids = {record.asset_id: record.asset_name for record in project_files}
+        project_files_ids = {
+            record.asset_id: record.asset_name for record in project_files
+        }
         if len(project_files_ids) == 0:
             return JSONResponse(
                 content={"signal": ResponseSignalEnum.NO_FILES_ERROR.value},
@@ -118,7 +128,11 @@ async def process_data(
             )
 
     if do_reset:
-        _ = await chunk_model.delete_chunks_by_project_id(project_id=project.project_id)  # type: ignore
+        _ = await nlp_controller.reset_vectordb_collection(project)
+        _ = await chunk_model.delete_chunks_by_project_id(
+            project_id=cast(int, project.project_id)
+        )
+
     no_chunk_records = 0
     no_files = 0
     for asset_id, file_name in project_files_ids.items():
