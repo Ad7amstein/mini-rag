@@ -27,7 +27,9 @@ async def lifespan(app: FastAPI):  # pylint: disable=[W0621]
     logger.info("Postgresql connection established.")
 
     llm_provider_factory = LLMProviderFactory(app.state.settings)
-    vectordb_provider_factory = VectorDBProviderFactory(app.state.settings)
+    vectordb_provider_factory = VectorDBProviderFactory(
+        config=app.state.settings, db_client=app.state.db_client # type: ignore
+    )
 
     app.state.generation_client = llm_provider_factory.create(
         app.state.settings.GENERATION_BACKEND
@@ -51,7 +53,11 @@ async def lifespan(app: FastAPI):  # pylint: disable=[W0621]
     app.state.vectordb_client = vectordb_provider_factory.creat(
         app.state.settings.VECTOR_DB_BACKEND
     )
-    app.state.vectordb_client.connect()  # type: ignore
+
+    if app.state.vectordb_client is None:
+        logger.error("Can't Create VectorDB Client")
+
+    await app.state.vectordb_client.connect()  # type: ignore
 
     app.state.template_parser = TemplateParser(
         language=app.state.settings.PRIMARY_LANGUAGE
@@ -61,7 +67,7 @@ async def lifespan(app: FastAPI):  # pylint: disable=[W0621]
 
     # Shutdown
     await app.state.db_engine.dispose()
-    app.state.vectordb_client.disconnect()  # type: ignore
+    await app.state.vectordb_client.disconnect()  # type: ignore
     logger.info("Postgresql connection closed.")
 
 
