@@ -77,6 +77,20 @@ class DataChunkModel(BaseDataModel):
             chunks = result.scalars().all()
         return chunks, total_pages
 
+    async def get_total_chunks_count(self, project_id: int) -> int:
+        total_chunks = 0
+        async with self.db_client() as session:
+            total_chunks = await session.execute(
+                select(
+                    func.count(  # pylint: disable=[E1102]
+                        DataChunk.chunk_project_id
+                    )
+                ).where(DataChunk.chunk_project_id == project_id)
+            )
+            total_chunks = total_chunks.scalar_one()
+
+        return total_chunks
+
 
 def main():
     """Entry Point for the Program."""
